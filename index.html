@@ -2,101 +2,76 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escala Renascer - Gestão</title>
+    <title>Escala Renascer - Organização</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #d4af37; }
-        body { font-family: sans-serif; background: #f4f7f6; padding: 10px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        label { font-weight: bold; display: block; margin-top: 10px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 5px; }
-        .evento-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 8px; border-top: 5px solid var(--accent); }
-        .acoes { display: flex; gap: 10px; margin-top: 10px; }
+        .grupo-musica { display: flex; gap: 5px; }
+        button { width: 100%; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .btn-add { background: #27ae60; color: white; width: auto; padding: 0 15px; }
+        .btn-salvar { background: #2c3e50; color: white; }
+        .item-lista { border-bottom: 1px solid #eee; padding: 5px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="text-align: center; font-size: 1.5em; color: var(--primary);">𝄞 Escala Renascer</div>
-
-    <input type="date" id="data">
-    <input type="time" id="horario">
-    <textarea id="musicas" placeholder="Músicas e Tons (Ex: Aleluia - D, Santo - G)" style="width:100%; height:80px;"></textarea>
-    <textarea id="integrantes" placeholder="Integrantes (Nome - Função, ex: João - Teclado)" style="width:100%; height:80px;"></textarea>
+    <h2>Nova Escala</h2>
     
-    <input type="hidden" id="editId">
-    <button onclick="salvarEvento()" id="btnSalvar">Salvar Escala</button>
+    <label>Data:</label>
+    <input type="date" id="data" placeholder="Data">
+    
+    <label>Horário:</label>
+    <input type="time" id="horario" placeholder="Horário">
 
+    <label>Músicas e Tons:</label>
+    <div class="grupo-musica">
+        <input type="text" id="input-musica" placeholder="Música - Tom">
+        <button class="btn-add" onclick="addMusica()">Add</button>
+    </div>
+    <ul id="lista-musicas-temp"></ul>
+
+    <label>Integrantes:</label>
+    <select id="integrantes">
+        <option>João - Tecladista</option>
+        <option>Maria - Vocalista</option>
+        <option>Pedro - Baterista</option>
+        <option>Ana - Baixista</option>
+    </select>
+    
+    <button class="btn-salvar" onclick="salvarEscala()">Salvar Escala Completa</button>
     <div id="lista-eventos"></div>
 </div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+    let musicasTemp = [];
 
-    function salvarEvento() {
-        let id = document.getElementById('editId').value;
+    function addMusica() {
+        let m = document.getElementById('input-musica').value;
+        if(m) {
+            musicasTemp.push(m);
+            document.getElementById('lista-musicas-temp').innerHTML += `<li>${m}</li>`;
+            document.getElementById('input-musica').value = '';
+        }
+    }
+
+    function salvarEscala() {
         let evento = {
-            id: id ? parseInt(id) : Date.now(),
+            id: Date.now(),
             data: document.getElementById('data').value,
             hora: document.getElementById('horario').value,
-            musicas: document.getElementById('musicas').value,
-            integrantes: document.getElementById('integrantes').value
+            musicas: musicasTemp,
+            integrante: document.getElementById('integrantes').value
         };
-
-        if(!evento.data || !evento.integrantes) return alert("Preencha data e integrantes!");
-
-        if(id) {
-            db = db.map(e => e.id == id ? evento : e);
-        } else {
-            db.push(evento);
-        }
-
+        
+        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+        db.push(evento);
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        limparForm();
-        renderizar();
+        alert("Escala salva com sucesso!");
+        location.reload();
     }
-
-    function renderizar() {
-        let html = '';
-        db.forEach(e => {
-            html += `<div class="evento-card">
-                <strong>${e.data.split('-').reverse().join('/')} às ${e.hora}</strong><br>
-                <small><b>Músicas:</b> ${e.musicas}</small><br>
-                <small><b>Equipe:</b> ${e.integrantes}</small>
-                <div class="acoes">
-                    <button onclick="editar(${e.id})" style="background:orange">Editar</button>
-                    <button onclick="excluir(${e.id})" style="background:red">Excluir</button>
-                </div>
-            </div>`;
-        });
-        document.getElementById('lista-eventos').innerHTML = html;
-    }
-
-    function editar(id) {
-        let e = db.find(i => i.id == id);
-        document.getElementById('editId').value = e.id;
-        document.getElementById('data').value = e.data;
-        document.getElementById('horario').value = e.hora;
-        document.getElementById('musicas').value = e.musicas;
-        document.getElementById('integrantes').value = e.integrantes;
-        document.getElementById('btnSalvar').innerText = "Atualizar Escala";
-    }
-
-    function excluir(id) {
-        if(confirm("Deseja excluir esta escala?")) {
-            db = db.filter(i => i.id !== id);
-            localStorage.setItem('escalaRenascer', JSON.stringify(db));
-            renderizar();
-        }
-    }
-
-    function limparForm() {
-        document.getElementById('editId').value = '';
-        document.getElementById('btnSalvar').innerText = "Salvar Escala";
-        document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-    }
-
-    renderizar();
 </script>
 </body>
 </html>
