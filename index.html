@@ -8,13 +8,13 @@
         :root { --primary: #2c3e50; --accent: #d4af37; }
         body { font-family: sans-serif; background: #f4f7f6; padding: 10px; margin: 0; }
         .container { max-width: 400px; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .logo { text-align: center; font-size: 1.5em; color: var(--primary); font-weight: bold; margin-bottom: 15px; }
+        .logo { text-align: center; font-size: 1.8em; color: var(--primary); font-weight: bold; margin-bottom: 15px; }
         label { font-size: 0.9em; font-weight: bold; margin-top: 10px; display: block; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .btn-add { background: #27ae60; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; width: 100%; margin-bottom: 10px; }
-        .btn-salvar { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; }
+        .btn-salvar { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; margin-top: 10px; }
         .evento-card { background: #fff; border: 1px solid #ddd; padding: 10px; margin-top: 15px; border-radius: 8px; border-left: 5px solid var(--accent); }
-        .btn-acao { cursor: pointer; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; }
+        .btn-acao { cursor: pointer; border: none; padding: 8px 15px; border-radius: 4px; margin-right: 5px; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -31,12 +31,10 @@
     <label>Músicas e Tom:</label>
     <input type="text" id="musica" placeholder="Ex: Aleluia - D">
     <button class="btn-add" onclick="addMusica()">+ Adicionar Música</button>
-    <small id="lista-musicas"></small>
+    <div id="lista-musicas-display"></div>
 
-    <label>Integrante:</label>
-    <select id="nome">
-        <option>Músico 1</option><option>Músico 2</option><option>Músico 3</option>
-    </select>
+    <label>Nome do Integrante:</label>
+    <input type="text" id="nome" placeholder="Digite o nome do músico">
 
     <label>Função:</label>
     <select id="funcao">
@@ -58,9 +56,13 @@
         let m = document.getElementById('musica');
         if(m.value) {
             musicasTemp.push(m.value);
-            document.getElementById('lista-musicas').innerHTML += `<div>• ${m.value}</div>`;
+            atualizarListaMusicas();
             m.value = '';
         }
+    }
+
+    function atualizarListaMusicas() {
+        document.getElementById('lista-musicas-display').innerHTML = musicasTemp.map(m => `<div>• ${m}</div>`).join('');
     }
 
     function salvar() {
@@ -69,10 +71,12 @@
             id: id ? parseInt(id) : Date.now(),
             data: document.getElementById('data').value,
             hora: document.getElementById('horario').value,
-            musicas: id ? musicasTemp : [...musicasTemp],
+            musicas: musicasTemp,
             nome: document.getElementById('nome').value,
             funcao: document.getElementById('funcao').value
         };
+
+        if(!evento.data || !evento.nome) return alert("Preencha data e nome!");
 
         if(id) {
             db = db.map(e => e.id == id ? evento : e);
@@ -81,8 +85,7 @@
         }
 
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        musicasTemp = [];
-        document.getElementById('lista-musicas').innerHTML = '';
+        limparForm();
         renderizar();
     }
 
@@ -93,8 +96,10 @@
                 <strong>${e.data} - ${e.hora}</strong><br>
                 <small>Músicas: ${e.musicas.join(', ')}</small><br>
                 <b>${e.nome}</b> (${e.funcao})<br>
-                <button class="btn-acao" onclick="editar(${e.id})">✏️</button>
-                <button class="btn-acao" onclick="excluir(${e.id})">🗑️</button>
+                <div style="margin-top:8px;">
+                    <button class="btn-acao" style="background:orange" onclick="editar(${e.id})">Editar</button>
+                    <button class="btn-acao" style="background:red" onclick="excluir(${e.id})">Excluir</button>
+                </div>
             </div>`;
         });
         document.getElementById('lista-eventos').innerHTML = html;
@@ -108,15 +113,22 @@
         document.getElementById('nome').value = e.nome;
         document.getElementById('funcao').value = e.funcao;
         musicasTemp = e.musicas;
-        document.getElementById('lista-musicas').innerHTML = e.musicas.map(m => `<div>• ${m}</div>`).join('');
+        atualizarListaMusicas();
     }
 
     function excluir(id) {
-        if(confirm("Excluir?")) {
+        if(confirm("Deseja excluir este item?")) {
             db = db.filter(i => i.id !== id);
             localStorage.setItem('escalaRenascer', JSON.stringify(db));
             renderizar();
         }
+    }
+
+    function limparForm() {
+        document.getElementById('editId').value = '';
+        document.getElementById('nome').value = '';
+        musicasTemp = [];
+        document.getElementById('lista-musicas-display').innerHTML = '';
     }
 
     renderizar();
