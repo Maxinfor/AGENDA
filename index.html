@@ -8,17 +8,14 @@
         :root { --primary: #2c3e50; --accent: #d4af37; }
         body { font-family: sans-serif; background: #f4f7f6; padding: 15px; }
         .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); }
-        .input-group { margin-bottom: 10px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 5px; }
+        h1 { text-align: center; color: var(--primary); font-size: 1.5em; margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-top: 10px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-top: 5px; }
+        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; margin-top: 10px; width: 100%; }
         .btn-add { background: #27ae60; }
         .btn-save { background: var(--primary); }
-        .card { border: 1px solid #ddd; padding: 10px; margin-top: 10px; border-radius: 5px; border-left: 5px solid var(--accent); }
-        .actions { margin-top: 10px; }
-        .edit { background: orange; margin-right: 5px; }
-        .delete { background: red; }
+        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 8px; border-left: 5px solid var(--accent); position: relative; }
+        .btn-del { background: #e74c3c; padding: 5px 10px; border: none; color: white; cursor: pointer; border-radius: 3px; font-size: 0.8em; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -26,125 +23,108 @@
 <div class="container">
     <h1>𝄞 Escala Renascer</h1>
     
-    <div class="input-group">
-        <label>Data</label>
-        <input type="date" id="data">
-    </div>
-    <div class="input-group">
-        <label>Horário</label>
-        <input type="time" id="horario">
-    </div>
-    <div class="input-group">
-        <label>Música e Tom</label>
-        <input type="text" id="musica-input" placeholder="Ex: Hosana - D">
-        <button class="btn btn-add" onclick="addMusica()">Adicionar Música</button>
-        <div id="lista-musicas-view"></div>
-    </div>
-    <div class="input-group">
-        <label>Integrante</label>
-        <input type="text" id="nome">
-    </div>
-    <div class="input-group">
-        <label>Função</label>
-        <select id="funcao">
-            <option>Backing vocal</option>
-            <option>Baterista</option>
-            <option>Baixista</option>
-            <option>Guitarrista</option>
-            <option>Tecladista</option>
-            <option>Violonista</option>
-        </select>
-    </div>
+    <label>Data:</label>
+    <input type="date" id="data">
+    
+    <label>Horário:</label>
+    <input type="time" id="horario">
 
-    <input type="hidden" id="edit-id">
-    <button class="btn btn-save" onclick="salvarEvento()">Salvar Escala</button>
+    <label>Músicas:</label>
+    <input type="text" id="musica-input" list="lista-musicas-rp" placeholder="Digite ou selecione a música">
+    <datalist id="lista-musicas-rp">
+        <option value="Restitui">
+        <option value="Eu Vou Viver">
+        <option value="Deus da Força">
+        <option value="A Resposta">
+        <option value="O Cheiro das Águas">
+        <option value="Viverei Teu Milagre">
+        <option value="Não Morrerei">
+        <option value="Deus de Milagres">
+        <option value="Som da Alegria">
+        <option value="Na Terra do Leite e Mel">
+        <option value="Autor da Vida">
+        <option value="Daniel">
+        <option value="Jesus é o Caminho">
+        <option value="Poderoso Deus">
+        <option value="O Tempo de Deus">
+        <option value="Consagração">
+    </datalist>
+    <button class="btn btn-add" onclick="addItem('musica')">+ Adicionar Música</button>
+    <div id="display-musicas" style="font-size: 0.9em; margin-top:5px; color:#555;"></div>
 
-    <div id="display-escala"></div>
+    <label>Integrante:</label>
+    <select id="integrante-input">
+        <option>Márcia</option><option>Estefany</option><option>Isabelle</option>
+        <option>Davi</option><option>Paulinho</option><option>Fernando</option><option>Max</option>
+    </select>
+    
+    <label>Função:</label>
+    <select id="funcao-input">
+        <option>Backing vocal</option><option>Baterista</option><option>Baixista</option>
+        <option>Guitarrista</option><option>Tecladista</option><option>Violonista</option>
+    </select>
+    <button class="btn btn-add" onclick="addItem('integrante')">+ Adicionar Integrante</button>
+    <div id="display-integrantes" style="font-size: 0.9em; margin-top:5px; color:#555;"></div>
+
+    <button class="btn btn-save" onclick="salvarEscalaFinal()">Salvar Escala Completa</button>
+
+    <div id="lista-eventos"></div>
 </div>
 
 <script>
-    let musicas = [];
+    let escalaAtual = { musicas: [], integrantes: [] };
 
-    function addMusica() {
-        const m = document.getElementById('musica-input');
-        if(m.value) {
-            musicas.push(m.value);
-            m.value = '';
-            document.getElementById('lista-musicas-view').innerHTML = musicas.join(', ');
+    function addItem(tipo) {
+        if(tipo === 'musica') {
+            let val = document.getElementById('musica-input').value;
+            if(val) { escalaAtual.musicas.push(val); document.getElementById('musica-input').value = ''; }
+        } else {
+            let nome = document.getElementById('integrante-input').value;
+            let func = document.getElementById('funcao-input').value;
+            escalaAtual.integrantes.push(`${nome} (${func})`);
         }
+        renderTemp();
     }
 
-    function salvarEvento() {
-        const id = document.getElementById('edit-id').value;
-        const evento = {
-            id: id ? parseInt(id) : Date.now(),
+    function renderTemp() {
+        document.getElementById('display-musicas').innerHTML = '<b>Músicas:</b> ' + escalaAtual.musicas.join(', ');
+        document.getElementById('display-integrantes').innerHTML = '<b>Equipe:</b> ' + escalaAtual.integrantes.join(', ');
+    }
+
+    function salvarEscalaFinal() {
+        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+        let final = {
+            id: Date.now(),
             data: document.getElementById('data').value,
             hora: document.getElementById('horario').value,
-            musicas: musicas,
-            nome: document.getElementById('nome').value,
-            funcao: document.getElementById('funcao').value
+            ...escalaAtual
         };
-
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        
-        if(id) {
-            db = db.map(e => e.id == id ? evento : e);
-        } else {
-            db.push(evento);
-        }
-
+        db.push(final);
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        resetForm();
-        render();
+        escalaAtual = { musicas: [], integrantes: [] };
+        renderTemp();
+        renderFinal();
     }
 
-    function render() {
-        const db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        const container = document.getElementById('display-escala');
-        container.innerHTML = '';
-        
-        db.forEach(e => {
-            container.innerHTML += `
-                <div class="card">
-                    <strong>${e.data} - ${e.hora}</strong><br>
-                    Músicas: ${e.musicas.join(', ')}<br>
-                    <strong>${e.nome}</strong> (${e.funcao})
-                    <div class="actions">
-                        <button class="btn edit" onclick="editar(${e.id})">Editar</button>
-                        <button class="btn delete" onclick="excluir(${e.id})">Excluir</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    function editar(id) {
-        const db = JSON.parse(localStorage.getItem('escalaRenascer'));
-        const e = db.find(x => x.id == id);
-        document.getElementById('edit-id').value = e.id;
-        document.getElementById('data').value = e.data;
-        document.getElementById('horario').value = e.hora;
-        document.getElementById('nome').value = e.nome;
-        document.getElementById('funcao').value = e.funcao;
-        musicas = e.musicas;
-        document.getElementById('lista-musicas-view').innerHTML = musicas.join(', ');
+    function renderFinal() {
+        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+        document.getElementById('lista-eventos').innerHTML = db.map(e => `
+            <div class="card">
+                <strong>${e.data} às ${e.hora}</strong><br>
+                <small>${e.musicas.join(' | ')}</small><br>
+                <small><b>Equipe:</b> ${e.integrantes.join(', ')}</small><br>
+                <button class="btn-del" onclick="excluir(${e.id})">Excluir Escala</button>
+            </div>
+        `).join('');
     }
 
     function excluir(id) {
-        let db = JSON.parse(localStorage.getItem('escalaRenascer'));
-        db = db.filter(x => x.id != id);
+        let db = JSON.parse(localStorage.getItem('escalaRenascer')).filter(x => x.id != id);
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        render();
+        renderFinal();
     }
 
-    function resetForm() {
-        document.getElementById('edit-id').value = '';
-        document.getElementById('nome').value = '';
-        musicas = [];
-        document.getElementById('lista-musicas-view').innerHTML = '';
-    }
-
-    render();
+    renderFinal();
 </script>
 </body>
 </html>
