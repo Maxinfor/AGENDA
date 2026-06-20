@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escala Renascer</title>
+    <title>Escala Renascer - Gestão</title>
     <style>
         body { font-family: sans-serif; background: #f4f7f6; padding: 15px; }
-        .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: #2c3e50; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 5px; }
-        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 8px; border-left: 5px solid #d4af37; }
+        .btn { padding: 12px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 5px; }
+        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 8px; border-left: 6px solid #d4af37; background: #fff; }
+        #db-view { margin-top: 30px; border-top: 2px solid #ddd; padding-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>𝄞 Escala Renascer</h1>
+    
     <input type="date" id="data">
     <input type="time" id="horario">
 
     <label>Músicas:</label>
     <input type="text" id="musica-input" list="lista-musicas">
     <datalist id="lista-musicas"></datalist>
-    <button class="btn" style="background:#27ae60" onclick="addItem('musica')">+ Add Música</button>
-    <div id="display-musicas"></div>
+    <button class="btn" style="background:#27ae60" onclick="addItem('musica')">+ Adicionar Música</button>
+    <div id="display-musicas" style="font-size:0.8em; color:#666;"></div>
 
     <label>Integrante:</label>
     <select id="integrante-input">
@@ -37,17 +40,20 @@
         <option>Baterista</option><option>Baixista</option><option>Guitarrista</option>
         <option>Tecladista</option><option>Violonista</option>
     </select>
-    <button class="btn" style="background:#27ae60" onclick="addItem('integrante')">+ Add Integrante</button>
-    <div id="display-integrantes"></div>
+    <button class="btn" style="background:#27ae60" onclick="addItem('integrante')">+ Adicionar Integrante</button>
+    <div id="display-integrantes" style="font-size:0.8em; color:#666;"></div>
 
     <button class="btn" style="background:#2c3e50" onclick="salvarFinal()">Salvar Escala Completa</button>
-    <div id="lista-eventos"></div>
+
+    <div id="db-view">
+        <h2>Banco de Dados (Escalas)</h2>
+        <div id="lista-eventos"></div>
+    </div>
 </div>
 
 <script>
-    const musicasRP = ["Restitui", "Eu Vou Viver", "Deus da Força", "A Resposta", "O Cheiro das Águas", "Viverei Teu Milagre", "Não Morrerei", "Deus de Milagres", "Som da Alegria", "Na Terra do Leite e Mel", "Autor da Vida", "Daniel", "Jesus é o Caminho", "Poderoso Deus", "O Tempo de Deus", "Consagração", "Adoramos o Rei", "A Pesca Maravilhosa", "Toma o Teu Lugar", "Propósito", "Santo", "Fogo e Glória", "Inesquecível", "Bom é Louvar", "Promessa", "Vem Espírito", "Na Força do Louvor", "O Grande Dia", "Dono de Tudo", "Tudo Pode Mudar"];
+    const musicasRP = ["Restitui", "Eu Vou Viver", "Deus da Força", "A Resposta", "O Cheiro das Águas", "Viverei Teu Milagre", "Não Morrerei", "Deus de Milagres", "Som da Alegria", "Na Terra do Leite e Mel", "Autor da Vida", "Daniel", "Jesus é o Caminho", "Poderoso Deus", "O Tempo de Deus", "Consagração", "Adoramos o Rei", "A Pesca Maravilhosa", "Toma o Teu Lugar", "Propósito", "Santo", "Fogo e Glória", "Inesquecível", "Bom é Louvar", "Promessa", "Vem Espírito", "Na Força do Louvor", "O Grande Dia", "Dono de Tudo", "Tudo Pode Mudar", "A Vitória é Nossa", "Alegria do Senhor", "Amigo de Deus", "Atos 2", "Bênçãos que não têm fim", "Clamo Sangue", "Corpo e Família", "Deus de Aliança", "Deus do Impossível", "Digno é o Senhor", "Diz", "És o Amor", "Eu me rendo", "Faz um milagre em mim", "Grandes Coisas", "Incomparável", "Lugar de Adoração", "Mais que Vencedor", "Me leva pra casa", "Nada vai me separar", "Ouve meu clamor", "Pai de Amor", "Precioso", "Quero te adorar", "Rei dos Reis", "Se o Espírito de Deus", "Tu és Fiel", "Um milagre", "Vem me buscar", "Yeshua"];
     
-    // Preencher datalist
     const dl = document.getElementById('lista-musicas');
     musicasRP.forEach(m => dl.innerHTML += `<option value="${m}">`);
 
@@ -68,12 +74,7 @@
 
     function salvarFinal() {
         let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        db.push({
-            id: Date.now(),
-            data: document.getElementById('data').value,
-            hora: document.getElementById('horario').value,
-            ...temp
-        });
+        db.push({ id: Date.now(), data: document.getElementById('data').value, hora: document.getElementById('horario').value, ...temp });
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
         temp = { musicas: [], integrantes: [] };
         renderFinal();
@@ -86,7 +87,7 @@
                 <strong>${e.data} às ${e.hora}</strong><br>
                 Músicas: ${e.musicas.join(', ')}<br>
                 Equipe: ${e.integrantes.join(', ')}<br>
-                <button onclick="excluir(${e.id})" style="background:red; color:white; border:none; margin-top:5px">Excluir</button>
+                <button onclick="excluir(${e.id})" style="background:red; border:none; color:white; padding:5px; margin-top:10px; cursor:pointer;">Excluir</button>
             </div>
         `).join('');
     }
