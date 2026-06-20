@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escala Renascer - Gestão</title>
+    <title>Escala Renascer - Completo</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; padding: 15px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h1, h2 { text-align: center; color: #2c3e50; }
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn { padding: 12px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 5px; }
-        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 8px; border-left: 6px solid #d4af37; background: #fff; }
-        #db-view { margin-top: 30px; border-top: 2px solid #ddd; padding-top: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; padding: 20px; margin: 0; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; background: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h1 { text-align: center; color: #1a2a3a; font-size: 1.6em; margin-bottom: 20px; text-transform: uppercase; }
+        label { font-weight: bold; color: #444; display: block; margin-top: 12px; font-size: 0.85em; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; margin-top: 5px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .btn-add { background: #c5a059; }
+        .btn-save { background: #1a2a3a; }
+        .card { background: white; padding: 15px; margin-top: 15px; border-radius: 12px; border-left: 6px solid #c5a059; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-wp { background: #25d366; margin-top: 10px; font-size: 0.9em; }
     </style>
 </head>
 <body>
@@ -19,14 +22,16 @@
 <div class="container">
     <h1>𝄞 Escala Renascer</h1>
     
+    <label>Data:</label>
     <input type="date" id="data">
+    <label>Horário:</label>
     <input type="time" id="horario">
 
     <label>Músicas:</label>
-    <input type="text" id="musica-input" list="lista-musicas">
+    <input type="text" id="musica-input" list="lista-musicas" placeholder="Digite ou selecione">
     <datalist id="lista-musicas"></datalist>
-    <button class="btn" style="background:#27ae60" onclick="addItem('musica')">+ Adicionar Música</button>
-    <div id="display-musicas" style="font-size:0.8em; color:#666;"></div>
+    <button class="btn btn-add" onclick="addItem('musica')">+ Adicionar Música</button>
+    <div id="display-musicas" style="font-size: 0.8em; color: #666; margin-top: 5px;"></div>
 
     <label>Integrante:</label>
     <select id="integrante-input">
@@ -40,19 +45,16 @@
         <option>Baterista</option><option>Baixista</option><option>Guitarrista</option>
         <option>Tecladista</option><option>Violonista</option>
     </select>
-    <button class="btn" style="background:#27ae60" onclick="addItem('integrante')">+ Adicionar Integrante</button>
-    <div id="display-integrantes" style="font-size:0.8em; color:#666;"></div>
+    <button class="btn btn-add" onclick="addItem('integrante')">+ Adicionar Integrante</button>
+    <div id="display-integrantes" style="font-size: 0.8em; color: #666; margin-top: 5px;"></div>
 
-    <button class="btn" style="background:#2c3e50" onclick="salvarFinal()">Salvar Escala Completa</button>
+    <button class="btn btn-save" onclick="salvarFinal()" style="margin-top:20px;">SALVAR ESCALA COMPLETA</button>
 
-    <div id="db-view">
-        <h2>Banco de Dados (Escalas)</h2>
-        <div id="lista-eventos"></div>
-    </div>
+    <div id="lista-eventos"></div>
 </div>
 
 <script>
-    const musicasRP = ["Restitui", "Eu Vou Viver", "Deus da Força", "A Resposta", "O Cheiro das Águas", "Viverei Teu Milagre", "Não Morrerei", "Deus de Milagres", "Som da Alegria", "Na Terra do Leite e Mel", "Autor da Vida", "Daniel", "Jesus é o Caminho", "Poderoso Deus", "O Tempo de Deus", "Consagração", "Adoramos o Rei", "A Pesca Maravilhosa", "Toma o Teu Lugar", "Propósito", "Santo", "Fogo e Glória", "Inesquecível", "Bom é Louvar", "Promessa", "Vem Espírito", "Na Força do Louvor", "O Grande Dia", "Dono de Tudo", "Tudo Pode Mudar", "A Vitória é Nossa", "Alegria do Senhor", "Amigo de Deus", "Atos 2", "Bênçãos que não têm fim", "Clamo Sangue", "Corpo e Família", "Deus de Aliança", "Deus do Impossível", "Digno é o Senhor", "Diz", "És o Amor", "Eu me rendo", "Faz um milagre em mim", "Grandes Coisas", "Incomparável", "Lugar de Adoração", "Mais que Vencedor", "Me leva pra casa", "Nada vai me separar", "Ouve meu clamor", "Pai de Amor", "Precioso", "Quero te adorar", "Rei dos Reis", "Se o Espírito de Deus", "Tu és Fiel", "Um milagre", "Vem me buscar", "Yeshua"];
+    const musicasRP = ["Restitui", "Eu Vou Viver", "Deus da Força", "A Resposta", "O Cheiro das Águas", "Não Morrerei", "Deus de Milagres", "Som da Alegria", "Autor da Vida", "Daniel", "Jesus é o Caminho", "Poderoso Deus", "Consagração", "Toma o Teu Lugar", "Propósito", "Santo", "Fogo e Glória", "Inesquecível", "Bom é Louvar", "Promessa", "Vem Espírito", "Dono de Tudo", "Tudo Pode Mudar", "Yeshua", "Clamo Sangue", "Atos 2", "Deus de Aliança", "Grandes Coisas", "Me leva pra casa", "Ouve meu clamor", "Vem me buscar", "Tu és Fiel", "Alegria do Senhor", "Amigo de Deus", "Bênçãos que não têm fim", "Corpo e Família", "Deus do Impossível", "Digno é o Senhor", "Diz", "És o Amor", "Eu me rendo", "Faz um milagre em mim", "Incomparável", "Lugar de Adoração", "Mais que Vencedor", "Nada vai me separar", "Pai de Amor", "Precioso", "Quero te adorar", "Rei dos Reis", "Se o Espírito de Deus", "Um milagre", "Deus é Fiel", "Nada é impossível", "Poder do Sangue", "Graça", "Santo Espírito", "A Ti a Glória", "Tu és Bom", "Vitorioso", "Agnus Dei", "Caminho no Deserto", "Desperta", "Diante do Trono", "Em Teus Braços", "Espontâneo", "Essência da Adoração", "Eu Escolho Deus", "Eu Te Busco", "Face a Face", "Fiz este hino", "Glória a Deus", "Hosana", "Lindo És", "Livre", "Mais de Ti", "Meu Universo", "Na casa do Pai", "Nasci para adorar", "No altar", "O meu milagre", "Onde o Espírito de Deus está", "Paz", "Pois Tu és Santo", "Quebrantado", "Quão grande é o meu Deus", "Sobre as águas", "Teu amor não falha", "Tua presença"];
     
     const dl = document.getElementById('lista-musicas');
     musicasRP.forEach(m => dl.innerHTML += `<option value="${m}">`);
@@ -62,11 +64,12 @@
     function addItem(tipo) {
         if(tipo === 'musica') {
             let m = document.getElementById('musica-input');
-            if(m.value) { temp.musicas.push(m.value); m.value = ''; }
+            if(m.value) { temp.musicas.push(m.value); m.value = ''; alert("Música adicionada!"); }
         } else {
             let n = document.getElementById('integrante-input').value;
             let f = document.getElementById('funcao-input').value;
-            temp.integrantes.push(`${n} (${f})`);
+            temp.integrantes.push(n + " (" + f + ")");
+            alert("Integrante adicionado!");
         }
         document.getElementById('display-musicas').innerText = "Músicas: " + temp.musicas.join(', ');
         document.getElementById('display-integrantes').innerText = "Equipe: " + temp.integrantes.join(', ');
@@ -77,6 +80,8 @@
         db.push({ id: Date.now(), data: document.getElementById('data').value, hora: document.getElementById('horario').value, ...temp });
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
         temp = { musicas: [], integrantes: [] };
+        document.getElementById('display-musicas').innerText = "";
+        document.getElementById('display-integrantes').innerText = "";
         renderFinal();
     }
 
@@ -87,9 +92,15 @@
                 <strong>${e.data} às ${e.hora}</strong><br>
                 Músicas: ${e.musicas.join(', ')}<br>
                 Equipe: ${e.integrantes.join(', ')}<br>
-                <button onclick="excluir(${e.id})" style="background:red; border:none; color:white; padding:5px; margin-top:10px; cursor:pointer;">Excluir</button>
+                <button class="btn btn-wp" onclick="enviarWP('${e.data}', '${e.musicas}', '${e.integrantes}')">Enviar no WhatsApp</button>
+                <button onclick="excluir(${e.id})" style="background:none; border:none; color:red; cursor:pointer; display:block; margin:auto; margin-top:5px;">Excluir</button>
             </div>
         `).join('');
+    }
+
+    function enviarWP(data, mus, int) {
+        let msg = `*Escala Renascer - ${data}*%0A%0A*Músicas:* ${mus}%0A*Equipe:* ${int}`;
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
     function excluir(id) {
