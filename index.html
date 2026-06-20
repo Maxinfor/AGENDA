@@ -2,139 +2,149 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Escala Renascer</title>
     <style>
         :root { --primary: #2c3e50; --accent: #d4af37; }
-        body { font-family: sans-serif; background: #f4f7f6; padding: 15px; margin: 0; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .logo { text-align: center; font-size: 1.8em; color: var(--primary); font-weight: bold; margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-add { background: #27ae60; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 8px; width: 100%; font-weight: bold; }
-        .btn-salvar { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; margin-top: 15px; }
-        .evento-card { background: #fff; border-left: 6px solid var(--accent); padding: 15px; margin-top: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .btn-acao { cursor: pointer; border: none; padding: 8px 12px; border-radius: 5px; margin-right: 5px; color: white; font-size: 0.8em; }
+        body { font-family: sans-serif; background: #f4f7f6; padding: 15px; }
+        .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); }
+        .input-group { margin-bottom: 10px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 5px; }
+        .btn-add { background: #27ae60; }
+        .btn-save { background: var(--primary); }
+        .card { border: 1px solid #ddd; padding: 10px; margin-top: 10px; border-radius: 5px; border-left: 5px solid var(--accent); }
+        .actions { margin-top: 10px; }
+        .edit { background: orange; margin-right: 5px; }
+        .delete { background: red; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="logo">𝄞 Escala Renascer</div>
+    <h1>𝄞 Escala Renascer</h1>
+    
+    <div class="input-group">
+        <label>Data</label>
+        <input type="date" id="data">
+    </div>
+    <div class="input-group">
+        <label>Horário</label>
+        <input type="time" id="horario">
+    </div>
+    <div class="input-group">
+        <label>Música e Tom</label>
+        <input type="text" id="musica-input" placeholder="Ex: Hosana - D">
+        <button class="btn btn-add" onclick="addMusica()">Adicionar Música</button>
+        <div id="lista-musicas-view"></div>
+    </div>
+    <div class="input-group">
+        <label>Integrante</label>
+        <input type="text" id="nome">
+    </div>
+    <div class="input-group">
+        <label>Função</label>
+        <select id="funcao">
+            <option>Backing vocal</option>
+            <option>Baterista</option>
+            <option>Baixista</option>
+            <option>Guitarrista</option>
+            <option>Tecladista</option>
+            <option>Violonista</option>
+        </select>
+    </div>
 
-    <label>Data:</label>
-    <input type="date" id="data">
+    <input type="hidden" id="edit-id">
+    <button class="btn btn-save" onclick="salvarEvento()">Salvar Escala</button>
 
-    <label>Horário:</label>
-    <input type="time" id="horario">
-
-    <label>Música e Tom:</label>
-    <input type="text" id="musica" placeholder="Ex: Aleluia - D">
-    <button class="btn-add" onclick="addMusica()">+ Adicionar Música</button>
-    <div id="lista-musicas-display" style="margin: 10px 0; font-size: 0.9em; color: #555;"></div>
-
-    <label>Nome do Integrante:</label>
-    <input type="text" id="nome" placeholder="Digite o nome">
-
-    <label>Função:</label>
-    <select id="funcao">
-        <option>Backing vocal</option><option>Baterista</option><option>Baixista</option>
-        <option>Guitarrista</option><option>Tecladista</option><option>Violonista</option>
-    </select>
-
-    <input type="hidden" id="editId">
-    <button class="btn-salvar" onclick="salvarEscala()">Salvar Escala</button>
-
-    <div id="lista-eventos"></div>
+    <div id="display-escala"></div>
 </div>
 
 <script>
-    let musicasTemp = [];
+    let musicas = [];
 
-    // Função para adicionar música na lista temporária
     function addMusica() {
-        let input = document.getElementById('musica');
-        if(input.value.trim() !== "") {
-            musicasTemp.push(input.value);
-            input.value = '';
-            document.getElementById('lista-musicas-display').innerHTML = musicasTemp.join(' | ');
+        const m = document.getElementById('musica-input');
+        if(m.value) {
+            musicas.push(m.value);
+            m.value = '';
+            document.getElementById('lista-musicas-view').innerHTML = musicas.join(', ');
         }
     }
 
-    function salvarEscala() {
-        let id = document.getElementById('editId').value;
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        
-        let novoEvento = {
+    function salvarEvento() {
+        const id = document.getElementById('edit-id').value;
+        const evento = {
             id: id ? parseInt(id) : Date.now(),
             data: document.getElementById('data').value,
             hora: document.getElementById('horario').value,
-            musicas: musicasTemp,
+            musicas: musicas,
             nome: document.getElementById('nome').value,
             funcao: document.getElementById('funcao').value
         };
 
-        if(!novoEvento.data || !novoEvento.nome) return alert("Por favor, preencha a data e o nome!");
-
+        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+        
         if(id) {
-            db = db.map(e => e.id == parseInt(id) ? novoEvento : e);
+            db = db.map(e => e.id == id ? evento : e);
         } else {
-            db.push(novoEvento);
+            db.push(evento);
         }
 
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        alert("Escala salva com sucesso!");
-        limparForm();
-        renderizar();
+        resetForm();
+        render();
     }
 
-    function renderizar() {
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        let html = '';
+    function render() {
+        const db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+        const container = document.getElementById('display-escala');
+        container.innerHTML = '';
+        
         db.forEach(e => {
-            html += `<div class="evento-card">
-                <strong>${e.data} às ${e.hora}</strong><br>
-                <small>Músicas: ${e.musicas.join(', ')}</small><br>
-                <b>${e.nome}</b> (${e.funcao})<br>
-                <div style="margin-top:10px;">
-                    <button class="btn-acao" style="background:orange" onclick="editar(${e.id})">Editar</button>
-                    <button class="btn-acao" style="background:red" onclick="excluir(${e.id})">Excluir</button>
+            container.innerHTML += `
+                <div class="card">
+                    <strong>${e.data} - ${e.hora}</strong><br>
+                    Músicas: ${e.musicas.join(', ')}<br>
+                    <strong>${e.nome}</strong> (${e.funcao})
+                    <div class="actions">
+                        <button class="btn edit" onclick="editar(${e.id})">Editar</button>
+                        <button class="btn delete" onclick="excluir(${e.id})">Excluir</button>
+                    </div>
                 </div>
-            </div>`;
+            `;
         });
-        document.getElementById('lista-eventos').innerHTML = html;
     }
 
     function editar(id) {
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        let e = db.find(i => i.id == id);
-        document.getElementById('editId').value = e.id;
+        const db = JSON.parse(localStorage.getItem('escalaRenascer'));
+        const e = db.find(x => x.id == id);
+        document.getElementById('edit-id').value = e.id;
         document.getElementById('data').value = e.data;
         document.getElementById('horario').value = e.hora;
         document.getElementById('nome').value = e.nome;
         document.getElementById('funcao').value = e.funcao;
-        musicasTemp = e.musicas;
-        document.getElementById('lista-musicas-display').innerHTML = musicasTemp.join(' | ');
+        musicas = e.musicas;
+        document.getElementById('lista-musicas-view').innerHTML = musicas.join(', ');
     }
 
     function excluir(id) {
-        if(confirm("Deseja realmente excluir?")) {
-            let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-            db = db.filter(i => i.id !== id);
-            localStorage.setItem('escalaRenascer', JSON.stringify(db));
-            renderizar();
-        }
+        let db = JSON.parse(localStorage.getItem('escalaRenascer'));
+        db = db.filter(x => x.id != id);
+        localStorage.setItem('escalaRenascer', JSON.stringify(db));
+        render();
     }
 
-    function limparForm() {
-        document.getElementById('editId').value = '';
-        document.getElementById('data').value = '';
-        document.getElementById('horario').value = '';
+    function resetForm() {
+        document.getElementById('edit-id').value = '';
         document.getElementById('nome').value = '';
-        document.getElementById('lista-musicas-display').innerHTML = '';
-        musicasTemp = [];
+        musicas = [];
+        document.getElementById('lista-musicas-view').innerHTML = '';
     }
 
-    renderizar();
+    render();
 </script>
 </body>
 </html>
