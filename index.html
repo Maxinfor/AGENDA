@@ -2,27 +2,23 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Escala Renascer - Gestão de Ministério</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escala Renascer</title>
     <style>
         :root { --primary: #2c3e50; --accent: #d4af37; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-top: 6px solid var(--accent); }
-        .logo { text-align: center; margin-bottom: 20px; }
-        .logo img { width: 120px; }
-        input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; }
-        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .evento-bloco { background: white; border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .integrante-item { background: #f8f9fa; padding: 5px; margin: 5px 0; border-radius: 4px; border-left: 3px solid var(--accent); font-size: 0.9em; display: flex; justify-content: space-between; }
+        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 10px; }
+        .container { max-width: 100%; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .logo { text-align: center; font-size: 2em; color: var(--primary); margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; /* 16px evita zoom do iOS */ }
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
+        .evento-bloco { background: #fff; border: 1px solid #ddd; padding: 12px; margin: 15px 0; border-radius: 8px; }
+        .integrante-item { background: #fdfdfd; padding: 8px; margin: 5px 0; border-radius: 5px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="logo">
-        <!-- Substitua o src abaixo pela URL do logo da sua igreja -->
-        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913506.png" alt="Logo">
-        <h1>Escala Renascer</h1>
-    </div>
+    <div class="logo">𝄞 Escala Renascer</div>
 
     <input type="date" id="data">
     <input type="time" id="horario">
@@ -49,6 +45,8 @@
             funcao: document.getElementById('funcao').value
         };
 
+        if(!evento.data || !evento.nome) return alert("Preencha a data e o nome!");
+
         let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
         db.push(evento);
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
@@ -58,8 +56,8 @@
 
     function renderizar() {
         let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        // Agrupar por data e hora
         let grupos = {};
+        
         db.forEach(e => {
             let chave = e.data + " " + e.hora + " | " + e.musica;
             if(!grupos[chave]) grupos[chave] = [];
@@ -71,13 +69,12 @@
             let [dataHora, musica] = chave.split(" | ");
             let [data, hora] = dataHora.split(" ");
             html += `<div class="evento-bloco">
-                        <strong>Data:</strong> ${data.split('-').reverse().join('/')} às ${hora}<br>
-                        <strong>Música:</strong> ${musica}
-                        <hr>`;
+                        <strong>${data.split('-').reverse().join('/')} - ${hora}</strong><br>
+                        <small>Música: ${musica}</small><hr>`;
             grupos[chave].forEach(i => {
                 html += `<div class="integrante-item">
-                            ${i.nome} - <em>${i.funcao}</em>
-                            <span style="color:red; cursor:pointer;" onclick="excluir(${i.id})">✖</span>
+                            <span><b>${i.nome}</b> (${i.funcao})</span>
+                            <span style="color:red; font-weight:bold;" onclick="excluir(${i.id})">X</span>
                          </div>`;
             });
             html += `</div>`;
