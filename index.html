@@ -2,19 +2,20 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escala Renascer Pro</title>
     <style>
         :root { --dark: #0f172a; --gold: #d4af37; --bg: #020617; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
+        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
         .container { max-width: 450px; margin: auto; }
         .card { background: #1e293b; padding: 20px; border-radius: 20px; border: 1px solid #334155; margin-bottom: 20px; }
-        h1 { text-align: center; color: var(--gold); margin-bottom: 20px; }
-        label { display: block; font-size: 0.8rem; margin: 10px 0 5px; color: #94a3b8; }
-        input, select { width: 100%; padding: 15px; border-radius: 12px; border: none; background: #334155; color: white; margin-bottom: 10px; font-size: 1rem; }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-gold { background: var(--gold); color: var(--dark); }
-        .btn-blue { background: #3b82f6; color: white; }
+        h1 { text-align: center; color: var(--gold); font-size: 1.5rem; }
+        label { display: block; font-size: 0.75rem; margin: 10px 0 5px; color: #94a3b8; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #334155; color: white; margin-bottom: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-add { background: var(--gold); color: var(--dark); }
+        .btn-save { background: #22c55e; color: white; margin-top: 20px; }
+        .btn-del { background: #ef4444; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; }
         .registro { background: #1e293b; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 5px solid var(--gold); }
     </style>
 </head>
@@ -26,52 +27,86 @@
     <div class="card">
         <label>Data</label>
         <input type="date" id="data">
+        <label>Horário</label>
+        <input type="time" id="horario">
+        
+        <label>Música</label>
+        <input type="text" id="musica" list="lista-musicas" placeholder="Digite a música...">
+        <datalist id="lista-musicas"></datalist>
+        
         <label>Integrante</label>
         <select id="integrante">
             <option>Márcia</option><option>Estefany</option><option>Isabelle</option>
             <option>Davi</option><option>Paulinho</option><option>Fernando</option><option>Max</option>
         </select>
-        <button class="btn-gold" onclick="salvarDireto()">+ ADICIONAR INTEGRANTE</button>
+        <label>Função</label>
+        <select id="funcao">
+            <option>Cantor</option><option>Cantora</option><option>Backing vocal</option>
+            <option>Baterista</option><option>Baixista</option><option>Guitarrista</option>
+            <option>Tecladista</option><option>Violonista</option>
+        </select>
+        <button class="btn btn-add" onclick="adicionarTemp()">+ ADICIONAR ITEM À ESCALA</button>
+        <div id="preview" style="font-size: 0.75rem; margin-top:10px; color: var(--gold); word-wrap: break-word;"></div>
     </div>
 
+    <button class="btn btn-save" onclick="salvarEscala()">SALVAR ESCALA COMPLETA</button>
+
+    <h2 style="margin-top:30px;">Banco de Dados</h2>
     <div id="lista-db"></div>
 </div>
 
 <script>
-    // Função que salva DIRETAMENTE no banco sem variáveis temporárias
-    function salvarDireto() {
-        let data = document.getElementById('data').value;
-        let nome = document.getElementById('integrante').value;
+    const musicas100 = ["Restitui", "Eu Vou Viver", "Deus da Força", "A Resposta", "O Cheiro das Águas", "Não Morrerei", "Deus de Milagres", "Som da Alegria", "Autor da Vida", "Daniel", "Jesus é o Caminho", "Poderoso Deus", "Consagração", "Toma o Teu Lugar", "Propósito", "Santo", "Fogo e Glória", "Inesquecível", "Bom é Louvar", "Promessa", "Vem Espírito", "Dono de Tudo", "Tudo Pode Mudar", "Yeshua", "Clamo Sangue", "Atos 2", "Deus de Aliança", "Grandes Coisas", "Me leva pra casa", "Ouve meu clamor", "Vem me buscar", "Tu és Fiel", "Alegria do Senhor", "Amigo de Deus", "Bênçãos que não têm fim", "Corpo e Família", "Deus do Impossível", "Digno é o Senhor", "Diz", "És o Amor", "Eu me rendo", "Faz um milagre em mim", "Incomparável", "Lugar de Adoração", "Mais que Vencedor", "Nada vai me separar", "Pai de Amor", "Precioso", "Quero te adorar", "Rei dos Reis", "Se o Espírito de Deus", "Um milagre", "Deus é Fiel", "Nada é impossível", "Poder do Sangue", "Graça", "Santo Espírito", "A Ti a Glória", "Tu és Bom", "Vitorioso", "Agnus Dei", "Caminho no Deserto", "Desperta", "Diante do Trono", "Em Teus Braços", "Espontâneo", "Essência da Adoração", "Eu Escolho Deus", "Eu Te Busco", "Face a Face", "Fiz este hino", "Glória a Deus", "Hosana", "Lindo És", "Livre", "Mais de Ti", "Meu Universo", "Na casa do Pai", "Nasci para adorar", "No altar", "O meu milagre", "Onde o Espírito de Deus está", "Paz", "Pois Tu és Santo", "Quebrantado", "Quão grande é o meu Deus", "Sobre as águas", "Teu amor não falha", "Tua presença", "A Vitória é Nossa", "A Pesca Maravilhosa", "Na Força do Louvor", "O Grande Dia", "Bom é Louvar", "Firme nas Promessas", "Grande é o Senhor", "Meu Prazer", "Rendido Estou"];
+    
+    const dl = document.getElementById('lista-musicas');
+    musicas100.forEach(m => dl.innerHTML += `<option value="${m}">`);
+
+    let temp = { musicas: [], equipe: [] };
+
+    function adicionarTemp() {
+        let m = document.getElementById('musica').value;
+        let n = document.getElementById('integrante').value;
+        let f = document.getElementById('funcao').value;
         
-        if(!data) { alert("Escolha uma data primeiro!"); return; }
+        if(m) temp.musicas.push(m);
+        temp.equipe.push(`${n} (${f})`);
+        
+        document.getElementById('preview').innerText = "Adicionado! Musicas: " + temp.musicas.length + " | Pessoas: " + temp.equipe.length;
+        document.getElementById('musica').value = "";
+    }
+
+    function salvarEscala() {
+        let data = document.getElementById('data').value;
+        let hora = document.getElementById('horario').value;
+        if(!data || (temp.musicas.length === 0 && temp.equipe.length === 0)) { alert("Preencha a data e adicione itens!"); return; }
 
         let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        db.push({ id: Date.now(), data: data, nome: nome });
-        
+        db.push({ id: Date.now(), data, hora, ...temp });
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
+        
+        temp = { musicas: [], equipe: [] };
+        document.getElementById('preview').innerText = "";
         renderizar();
     }
 
     function renderizar() {
         let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        let html = "<h2>Registros:</h2>";
-        db.forEach(e => {
-            html += `
-                <div class="registro">
-                    <strong>Data: ${e.data}</strong><br>
-                    Integrante: ${e.nome}<br>
-                    <button class="btn-blue" style="padding:5px; font-size:0.7rem; margin-top:10px;" onclick="enviarWP('${e.data}', '${e.nome}')">WhatsApp</button>
-                </div>
-            `;
-        });
-        document.getElementById('lista-db').innerHTML = html;
+        document.getElementById('lista-db').innerHTML = db.map(e => `
+            <div class="registro">
+                <strong>${e.data} às ${e.hora}</strong><br>
+                <small>Músicas: ${e.musicas.join(', ')}</small><br>
+                <small>Equipe: ${e.equipe.join(' | ')}</small><br>
+                <button class="btn-del" onclick="excluir(${e.id})">Excluir</button>
+            </div>
+        `).join('');
     }
 
-    function enviarWP(data, nome) {
-        window.open(`https://wa.me/?text=Escala%20do%20dia%20${data}:%20${nome}`, '_blank');
+    function excluir(id) {
+        let db = JSON.parse(localStorage.getItem('escalaRenascer')).filter(e => e.id !== id);
+        localStorage.setItem('escalaRenascer', JSON.stringify(db));
+        renderizar();
     }
 
-    // Carrega ao iniciar
     renderizar();
 </script>
 </body>
