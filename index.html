@@ -5,52 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Escala Renascer</title>
     <style>
-        :root { --primary: #2c3e50; --accent: #d4af37; }
         body { font-family: sans-serif; background: #f4f7f6; padding: 15px; }
         .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); font-size: 1.5em; margin-bottom: 20px; }
-        label { display: block; font-weight: bold; margin-top: 10px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; margin-top: 5px; }
-        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; margin-top: 10px; width: 100%; }
-        .btn-add { background: #27ae60; }
-        .btn-save { background: var(--primary); }
-        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 8px; border-left: 5px solid var(--accent); position: relative; }
-        .btn-del { background: #e74c3c; padding: 5px 10px; border: none; color: white; cursor: pointer; border-radius: 3px; font-size: 0.8em; margin-top: 10px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 5px; }
+        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 8px; border-left: 5px solid #d4af37; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>𝄞 Escala Renascer</h1>
-    
-    <label>Data:</label>
     <input type="date" id="data">
-    
-    <label>Horário:</label>
     <input type="time" id="horario">
 
     <label>Músicas:</label>
-    <input type="text" id="musica-input" list="lista-musicas-rp" placeholder="Digite ou selecione a música">
-    <datalist id="lista-musicas-rp">
-        <option value="Restitui">
-        <option value="Eu Vou Viver">
-        <option value="Deus da Força">
-        <option value="A Resposta">
-        <option value="O Cheiro das Águas">
-        <option value="Viverei Teu Milagre">
-        <option value="Não Morrerei">
-        <option value="Deus de Milagres">
-        <option value="Som da Alegria">
-        <option value="Na Terra do Leite e Mel">
-        <option value="Autor da Vida">
-        <option value="Daniel">
-        <option value="Jesus é o Caminho">
-        <option value="Poderoso Deus">
-        <option value="O Tempo de Deus">
-        <option value="Consagração">
-    </datalist>
-    <button class="btn btn-add" onclick="addItem('musica')">+ Adicionar Música</button>
-    <div id="display-musicas" style="font-size: 0.9em; margin-top:5px; color:#555;"></div>
+    <input type="text" id="musica-input" list="lista-musicas">
+    <datalist id="lista-musicas"></datalist>
+    <button class="btn" style="background:#27ae60" onclick="addItem('musica')">+ Add Música</button>
+    <div id="display-musicas"></div>
 
     <label>Integrante:</label>
     <select id="integrante-input">
@@ -60,49 +33,49 @@
     
     <label>Função:</label>
     <select id="funcao-input">
-        <option>Backing vocal</option><option>Baterista</option><option>Baixista</option>
-        <option>Guitarrista</option><option>Tecladista</option><option>Violonista</option>
+        <option>Cantor</option><option>Cantora</option><option>Backing vocal</option>
+        <option>Baterista</option><option>Baixista</option><option>Guitarrista</option>
+        <option>Tecladista</option><option>Violonista</option>
     </select>
-    <button class="btn btn-add" onclick="addItem('integrante')">+ Adicionar Integrante</button>
-    <div id="display-integrantes" style="font-size: 0.9em; margin-top:5px; color:#555;"></div>
+    <button class="btn" style="background:#27ae60" onclick="addItem('integrante')">+ Add Integrante</button>
+    <div id="display-integrantes"></div>
 
-    <button class="btn btn-save" onclick="salvarEscalaFinal()">Salvar Escala Completa</button>
-
+    <button class="btn" style="background:#2c3e50" onclick="salvarFinal()">Salvar Escala Completa</button>
     <div id="lista-eventos"></div>
 </div>
 
 <script>
-    let escalaAtual = { musicas: [], integrantes: [] };
+    const musicasRP = ["Restitui", "Eu Vou Viver", "Deus da Força", "A Resposta", "O Cheiro das Águas", "Viverei Teu Milagre", "Não Morrerei", "Deus de Milagres", "Som da Alegria", "Na Terra do Leite e Mel", "Autor da Vida", "Daniel", "Jesus é o Caminho", "Poderoso Deus", "O Tempo de Deus", "Consagração", "Adoramos o Rei", "A Pesca Maravilhosa", "Toma o Teu Lugar", "Propósito", "Santo", "Fogo e Glória", "Inesquecível", "Bom é Louvar", "Promessa", "Vem Espírito", "Na Força do Louvor", "O Grande Dia", "Dono de Tudo", "Tudo Pode Mudar"];
+    
+    // Preencher datalist
+    const dl = document.getElementById('lista-musicas');
+    musicasRP.forEach(m => dl.innerHTML += `<option value="${m}">`);
+
+    let temp = { musicas: [], integrantes: [] };
 
     function addItem(tipo) {
         if(tipo === 'musica') {
-            let val = document.getElementById('musica-input').value;
-            if(val) { escalaAtual.musicas.push(val); document.getElementById('musica-input').value = ''; }
+            let m = document.getElementById('musica-input');
+            if(m.value) { temp.musicas.push(m.value); m.value = ''; }
         } else {
-            let nome = document.getElementById('integrante-input').value;
-            let func = document.getElementById('funcao-input').value;
-            escalaAtual.integrantes.push(`${nome} (${func})`);
+            let n = document.getElementById('integrante-input').value;
+            let f = document.getElementById('funcao-input').value;
+            temp.integrantes.push(`${n} (${f})`);
         }
-        renderTemp();
+        document.getElementById('display-musicas').innerText = "Músicas: " + temp.musicas.join(', ');
+        document.getElementById('display-integrantes').innerText = "Equipe: " + temp.integrantes.join(', ');
     }
 
-    function renderTemp() {
-        document.getElementById('display-musicas').innerHTML = '<b>Músicas:</b> ' + escalaAtual.musicas.join(', ');
-        document.getElementById('display-integrantes').innerHTML = '<b>Equipe:</b> ' + escalaAtual.integrantes.join(', ');
-    }
-
-    function salvarEscalaFinal() {
+    function salvarFinal() {
         let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        let final = {
+        db.push({
             id: Date.now(),
             data: document.getElementById('data').value,
             hora: document.getElementById('horario').value,
-            ...escalaAtual
-        };
-        db.push(final);
+            ...temp
+        });
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        escalaAtual = { musicas: [], integrantes: [] };
-        renderTemp();
+        temp = { musicas: [], integrantes: [] };
         renderFinal();
     }
 
@@ -111,9 +84,9 @@
         document.getElementById('lista-eventos').innerHTML = db.map(e => `
             <div class="card">
                 <strong>${e.data} às ${e.hora}</strong><br>
-                <small>${e.musicas.join(' | ')}</small><br>
-                <small><b>Equipe:</b> ${e.integrantes.join(', ')}</small><br>
-                <button class="btn-del" onclick="excluir(${e.id})">Excluir Escala</button>
+                Músicas: ${e.musicas.join(', ')}<br>
+                Equipe: ${e.integrantes.join(', ')}<br>
+                <button onclick="excluir(${e.id})" style="background:red; color:white; border:none; margin-top:5px">Excluir</button>
             </div>
         `).join('');
     }
