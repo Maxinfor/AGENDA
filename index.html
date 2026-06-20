@@ -2,18 +2,26 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Escala Renascer - Profissional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minha Escala</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 450px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        h1 { text-align: center; color: #1a2a3a; font-size: 1.5em; text-transform: uppercase; }
-        label { font-weight: bold; color: #444; display: block; margin-top: 10px; font-size: 0.85em; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-top: 5px; }
-        .btn { padding: 10px; border: none; border-radius: 8px; cursor: pointer; color: white; font-weight: bold; width: 100%; margin-top: 10px; }
-        .btn-add { background: #c5a059; }
-        .btn-save { background: #27ae60; font-size: 1.1em; }
-        .card { background: #f9f9f9; padding: 15px; margin-top: 15px; border-radius: 12px; border-left: 6px solid #c5a059; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .item-list { font-size: 0.85em; color: #555; margin: 5px 0; background: #eee; padding: 5px; border-radius: 4px; }
+        :root { --primary: #1a2a3a; --gold: #c5a059; --bg: #f0f2f5; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 500px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); font-size: 1.4rem; margin-bottom: 20px; }
+        
+        .section { background: #fafafa; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; }
+        label { font-size: 0.8rem; font-weight: bold; color: #666; display: block; margin-bottom: 5px; }
+        
+        input, select { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; margin-bottom: 5px; }
+        .btn-add { background: var(--gold); }
+        .btn-save { background: var(--primary); margin-top: 10px; font-size: 1.1rem; }
+        
+        .chip { display: inline-block; background: #e0e0e0; padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; margin: 2px; }
+        .card { background: white; padding: 15px; border-radius: 12px; border-left: 5px solid var(--gold); margin-top: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .btn-wp { background: #25d366; font-size: 0.8rem; padding: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -21,43 +29,45 @@
 <div class="container">
     <h1>𝄞 Escala Renascer</h1>
     
-    <label>Data:</label>
-    <input type="date" id="data">
-    <label>Horário:</label>
-    <input type="time" id="horario">
+    <div class="section">
+        <label>Data e Horário</label>
+        <input type="date" id="data">
+        <input type="time" id="horario">
+    </div>
 
-    <label>Música:</label>
-    <input type="text" id="musica-input" list="lista-musicas">
-    <datalist id="lista-musicas"></datalist>
-    <button class="btn btn-add" onclick="adicionarItem('musica')">+ Adicionar Música</button>
-    <div id="lista-musicas-display"></div>
+    <div class="section">
+        <label>Músicas</label>
+        <input type="text" id="musica-input" list="lista-musicas" placeholder="Ex: Restitui">
+        <datalist id="lista-musicas"></datalist>
+        <button class="btn btn-add" onclick="adicionarItem('musica')">+ Adicionar Música</button>
+        <div id="lista-musicas-display"></div>
+    </div>
 
-    <label>Integrante:</label>
-    <select id="integrante-input">
-        <option>Márcia</option><option>Estefany</option><option>Isabelle</option>
-        <option>Davi</option><option>Paulinho</option><option>Fernando</option><option>Max</option>
-    </select>
-    <label>Função:</label>
-    <select id="funcao-input">
-        <option>Cantor</option><option>Cantora</option><option>Backing vocal</option>
-        <option>Baterista</option><option>Baixista</option><option>Guitarrista</option>
-        <option>Tecladista</option><option>Violonista</option>
-    </select>
-    <button class="btn btn-add" onclick="adicionarItem('integrante')">+ Adicionar Integrante</button>
-    <div id="lista-integrantes-display"></div>
+    <div class="section">
+        <label>Equipe</label>
+        <select id="integrante-input">
+            <option>Márcia</option><option>Estefany</option><option>Isabelle</option>
+            <option>Davi</option><option>Paulinho</option><option>Fernando</option><option>Max</option>
+        </select>
+        <select id="funcao-input">
+            <option>Cantor</option><option>Cantora</option><option>Backing vocal</option>
+            <option>Baterista</option><option>Baixista</option><option>Guitarrista</option>
+        </select>
+        <button class="btn btn-add" onclick="adicionarItem('integrante')">+ Adicionar Integrante</button>
+        <div id="lista-integrantes-display"></div>
+    </div>
 
-    <button class="btn btn-save" onclick="salvarNoBanco()" style="margin-top:20px;">SALVAR ESCALA COMPLETA</button>
+    <button class="btn btn-save" onclick="salvarNoBanco()">SALVAR ESCALA COMPLETA</button>
 
+    <h2 style="font-size: 1.1rem; color: #333; margin-top: 30px;">Banco de Dados</h2>
     <div id="historico"></div>
 </div>
 
 <script>
-    // Lista de músicas mantida
-    const musicasRP = ["Restitui", "Eu Vou Viver", "Deus da Força", "A Resposta", "O Cheiro das Águas", "Não Morrerei", "Deus de Milagres", "Som da Alegria", "Autor da Vida", "Daniel", "Jesus é o Caminho", "Poderoso Deus", "Consagração", "Toma o Teu Lugar", "Propósito", "Santo", "Fogo e Glória", "Inesquecível", "Bom é Louvar", "Promessa", "Vem Espírito", "Dono de Tudo", "Tudo Pode Mudar", "Yeshua", "Clamo Sangue", "Atos 2", "Deus de Aliança", "Grandes Coisas", "Me leva pra casa", "Ouve meu clamor", "Vem me buscar", "Tu és Fiel", "Alegria do Senhor", "Amigo de Deus", "Bênçãos que não têm fim", "Corpo e Família", "Deus do Impossível", "Digno é o Senhor", "Diz", "És o Amor", "Eu me rendo", "Faz um milagre em mim", "Incomparável", "Lugar de Adoração", "Mais que Vencedor", "Nada vai me separar", "Pai de Amor", "Precioso", "Quero te adorar", "Rei dos Reis", "Se o Espírito de Deus", "Um milagre", "Deus é Fiel", "Nada é impossível", "Poder do Sangue", "Graça", "Santo Espírito", "A Ti a Glória", "Tu és Bom", "Vitorioso", "Agnus Dei", "Caminho no Deserto", "Desperta", "Diante do Trono", "Em Teus Braços", "Espontâneo", "Essência da Adoração", "Eu Escolho Deus", "Eu Te Busco", "Face a Face", "Fiz este hino", "Glória a Deus", "Hosana", "Lindo És", "Livre", "Mais de Ti", "Meu Universo", "Na casa do Pai", "Nasci para adorar", "No altar", "O meu milagre", "Onde o Espírito de Deus está", "Paz", "Pois Tu és Santo", "Quebrantado", "Quão grande é o meu Deus", "Sobre as águas", "Teu amor não falha", "Tua presença"];
+    const musicasRP = ["Restitui", "Eu Vou Viver", "Deus da Força", "Não Morrerei", "Yeshua", "Consagração", "Toma o Teu Lugar", "Atos 2", "Grandes Coisas", "Fogo e Glória"];
     const dl = document.getElementById('lista-musicas');
     musicasRP.forEach(m => dl.innerHTML += `<option value="${m}">`);
 
-    // Variáveis de controle
     let bufferMusicas = [];
     let bufferIntegrantes = [];
 
@@ -74,37 +84,29 @@
     }
 
     function renderBuffers() {
-        document.getElementById('lista-musicas-display').innerHTML = bufferMusicas.map(m => `<div class="item-list">🎵 ${m}</div>`).join('');
-        document.getElementById('lista-integrantes-display').innerHTML = bufferIntegrantes.map(i => `<div class="item-list">👤 ${i}</div>`).join('');
+        document.getElementById('lista-musicas-display').innerHTML = bufferMusicas.map(m => `<span class="chip">🎵 ${m}</span>`).join('');
+        document.getElementById('lista-integrantes-display').innerHTML = bufferIntegrantes.map(i => `<span class="chip">👤 ${i}</span>`).join('');
     }
 
     function salvarNoBanco() {
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        let novaEscala = {
-            id: Date.now(),
-            data: document.getElementById('data').value,
-            hora: document.getElementById('horario').value,
-            musicas: [...bufferMusicas],
-            integrantes: [...bufferIntegrantes]
-        };
+        if(document.getElementById('data').value === "") { alert("Escolha uma data!"); return; }
         
-        db.push(novaEscala);
+        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+        db.push({ id: Date.now(), data: document.getElementById('data').value, hora: document.getElementById('horario').value, musicas: [...bufferMusicas], integrantes: [...bufferIntegrantes] });
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
         
-        // Limpar tudo
-        bufferMusicas = []; bufferIntegrantes = [];
-        renderBuffers();
+        bufferMusicas = []; bufferIntegrantes = []; renderBuffers();
         carregarHistorico();
     }
 
     function carregarHistorico() {
         let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        document.getElementById('historico').innerHTML = db.map(e => `
+        document.getElementById('historico').innerHTML = db.reverse().map(e => `
             <div class="card">
                 <strong>📅 ${e.data} - ${e.hora}</strong><br>
-                <small>Músicas: ${e.musicas.join(', ')}</small><br>
-                <small>Equipe: ${e.integrantes.join(' | ')}</small><br>
-                <button class="btn" style="background:#25d366; font-size:0.8em; padding:5px;" onclick="enviarWP('${e.data}', '${e.musicas}', '${e.integrantes}')">Enviar WhatsApp</button>
+                <div style="font-size: 0.85rem; margin: 5px 0;">${e.musicas.join(', ')}</div>
+                <div style="font-size: 0.8rem; color: #888;">${e.integrantes.join(' | ')}</div>
+                <button class="btn btn-wp" onclick="enviarWP('${e.data}', '${e.musicas}', '${e.integrantes}')">Compartilhar no WhatsApp</button>
             </div>
         `).join('');
     }
