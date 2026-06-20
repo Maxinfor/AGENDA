@@ -3,90 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escala Renascer</title>
+    <title>Escala Renascer - Gestão</title>
     <style>
         :root { --primary: #2c3e50; --accent: #d4af37; }
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 10px; }
-        .container { max-width: 100%; width: 100%; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
-        .logo { text-align: center; font-size: 2em; color: var(--primary); margin-bottom: 15px; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; /* 16px evita zoom do iOS */ }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; font-size: 16px; }
-        .evento-bloco { background: #fff; border: 1px solid #ddd; padding: 12px; margin: 15px 0; border-radius: 8px; }
-        .integrante-item { background: #fdfdfd; padding: 8px; margin: 5px 0; border-radius: 5px; border-left: 4px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: sans-serif; background: #f4f7f6; padding: 10px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 5px; }
+        .evento-card { background: #fff; border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 8px; border-top: 5px solid var(--accent); }
+        .acoes { display: flex; gap: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="logo">𝄞 Escala Renascer</div>
+    <div style="text-align: center; font-size: 1.5em; color: var(--primary);">𝄞 Escala Renascer</div>
 
     <input type="date" id="data">
     <input type="time" id="horario">
-    <input type="text" id="musica" placeholder="Música e Tom">
-    <input type="text" id="nome" placeholder="Nome do Integrante">
-    <select id="funcao">
-        <option>Tecladista</option><option>Baterista</option><option>Vocalista</option>
-        <option>Baixista</option><option>Guitarrista</option><option>Violonista</option>
-        <option>Backing vocal</option>
-    </select>
-    <button onclick="adicionar()">Adicionar à Escala</button>
+    <textarea id="musicas" placeholder="Músicas e Tons (Ex: Aleluia - D, Santo - G)" style="width:100%; height:80px;"></textarea>
+    <textarea id="integrantes" placeholder="Integrantes (Nome - Função, ex: João - Teclado)" style="width:100%; height:80px;"></textarea>
+    
+    <input type="hidden" id="editId">
+    <button onclick="salvarEvento()" id="btnSalvar">Salvar Escala</button>
 
     <div id="lista-eventos"></div>
 </div>
 
 <script>
-    function adicionar() {
+    let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
+
+    function salvarEvento() {
+        let id = document.getElementById('editId').value;
         let evento = {
-            id: Date.now(),
+            id: id ? parseInt(id) : Date.now(),
             data: document.getElementById('data').value,
             hora: document.getElementById('horario').value,
-            musica: document.getElementById('musica').value,
-            nome: document.getElementById('nome').value,
-            funcao: document.getElementById('funcao').value
+            musicas: document.getElementById('musicas').value,
+            integrantes: document.getElementById('integrantes').value
         };
 
-        if(!evento.data || !evento.nome) return alert("Preencha a data e o nome!");
+        if(!evento.data || !evento.integrantes) return alert("Preencha data e integrantes!");
 
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        db.push(evento);
+        if(id) {
+            db = db.map(e => e.id == id ? evento : e);
+        } else {
+            db.push(evento);
+        }
+
         localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        document.getElementById('nome').value = '';
+        limparForm();
         renderizar();
     }
 
     function renderizar() {
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        let grupos = {};
-        
-        db.forEach(e => {
-            let chave = e.data + " " + e.hora + " | " + e.musica;
-            if(!grupos[chave]) grupos[chave] = [];
-            grupos[chave].push(e);
-        });
-
         let html = '';
-        for(let chave in grupos) {
-            let [dataHora, musica] = chave.split(" | ");
-            let [data, hora] = dataHora.split(" ");
-            html += `<div class="evento-bloco">
-                        <strong>${data.split('-').reverse().join('/')} - ${hora}</strong><br>
-                        <small>Música: ${musica}</small><hr>`;
-            grupos[chave].forEach(i => {
-                html += `<div class="integrante-item">
-                            <span><b>${i.nome}</b> (${i.funcao})</span>
-                            <span style="color:red; font-weight:bold;" onclick="excluir(${i.id})">X</span>
-                         </div>`;
-            });
-            html += `</div>`;
-        }
+        db.forEach(e => {
+            html += `<div class="evento-card">
+                <strong>${e.data.split('-').reverse().join('/')} às ${e.hora}</strong><br>
+                <small><b>Músicas:</b> ${e.musicas}</small><br>
+                <small><b>Equipe:</b> ${e.integrantes}</small>
+                <div class="acoes">
+                    <button onclick="editar(${e.id})" style="background:orange">Editar</button>
+                    <button onclick="excluir(${e.id})" style="background:red">Excluir</button>
+                </div>
+            </div>`;
+        });
         document.getElementById('lista-eventos').innerHTML = html;
     }
 
+    function editar(id) {
+        let e = db.find(i => i.id == id);
+        document.getElementById('editId').value = e.id;
+        document.getElementById('data').value = e.data;
+        document.getElementById('horario').value = e.hora;
+        document.getElementById('musicas').value = e.musicas;
+        document.getElementById('integrantes').value = e.integrantes;
+        document.getElementById('btnSalvar').innerText = "Atualizar Escala";
+    }
+
     function excluir(id) {
-        let db = JSON.parse(localStorage.getItem('escalaRenascer')) || [];
-        db = db.filter(i => i.id !== id);
-        localStorage.setItem('escalaRenascer', JSON.stringify(db));
-        renderizar();
+        if(confirm("Deseja excluir esta escala?")) {
+            db = db.filter(i => i.id !== id);
+            localStorage.setItem('escalaRenascer', JSON.stringify(db));
+            renderizar();
+        }
+    }
+
+    function limparForm() {
+        document.getElementById('editId').value = '';
+        document.getElementById('btnSalvar').innerText = "Salvar Escala";
+        document.querySelectorAll('input, textarea').forEach(i => i.value = '');
     }
 
     renderizar();
